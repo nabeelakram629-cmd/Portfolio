@@ -15,27 +15,10 @@ import { Sprite } from "./components/Sprite.jsx";
 import { Tagline } from "./components/Tagline.jsx";
 import { Trusted } from "./components/Trusted.jsx";
 import { Work } from "./components/Work.jsx";
-import { start3d } from "./animations3d.js";
-import { startPageAnimations } from "./pageAnimations.js";
 import { runEngine } from "./engine/runEngine.js";
-import { watchFeatured } from "./screenshots.js";
 
 export default function App() {
-  useLayoutEffect(() => {
-    let stopEngine = () => {};
-    let stop3d = () => {};
-    const stopShots = watchFeatured();
-    const stopPage = startPageAnimations(() => {
-      stopEngine = runEngine();
-      stop3d = start3d();
-    });
-    return () => {
-      stopShots();
-      stopPage();
-      stop3d();
-      stopEngine();
-    };
-  }, []);
+  useLayoutEffect(() => runEngine(), []);
 
   return (
     <>

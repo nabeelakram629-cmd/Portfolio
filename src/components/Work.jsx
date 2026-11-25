@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { FEATURED, FILTERS, WORK } from "../data/content.js";
+import {
+  FEATURED,
+  FILTERS,
+  WORK,
+  shotUrl,
+} from "../data/content.js";
 import { Icon } from "./Icon.jsx";
 import { Reveal } from "./Reveal.jsx";
 import { Roll } from "./Roll.jsx";
@@ -53,12 +58,14 @@ export function Work() {
                     </div>
                   </div>
                   <img
-                    data-shot={item.domain}
-                    data-url={item.url}
+                    src={shotUrl(item.url)}
                     alt={`Screenshot of ${item.domain}`}
+                    loading="lazy"
                     width="800"
                     height="600"
-                    loading="eager"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
                   />
                 </div>
                 <h3>{item.domain}</h3>
@@ -101,7 +108,6 @@ export function Work() {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-url={item.url}
-                data-domain={item.domain}
                 aria-label={`Visit ${item.domain} (opens in a new tab)`}
               >
                 <span className="num">{pad(i + 1)}</span>

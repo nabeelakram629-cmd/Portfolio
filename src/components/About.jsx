@@ -13,11 +13,10 @@ export function About() {
             <Reveal>
               <div className="thumb">
                 <img
-                  src="portrait.jpeg"
+                  src="/portrait.png"
                   width="800"
                   height="1000"
                   alt="Portrait of Nabeel Akram"
-                  decoding="async"
                 />
               </div>
             </Reveal>

@@ -1,7 +1,6 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { FAQS } from "../data/content.js";
-import { cachedShot, getShot } from "../screenshots.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -154,72 +153,28 @@ export function runEngine() {
       (() => {
         if (!FINE) return;
         const peek = $("#peek"),
-          img = peek.querySelector("img"),
-          line = peek.querySelector(".peek-line"),
-          name = peek.querySelector(".peek-name");
+          img = peek.querySelector("img");
         let tx = 0,
           ty = 0,
           x = 0,
           y = 0,
-          raf = 0,
-          token = 0,
-          current = "";
+          raf = 0;
         const loop = () => {
           x += (tx - x) * 0.18;
           y += (ty - y) * 0.18;
           peek.style.transform = `translate3d(${x}px,${y}px,0)`;
           raf = peek.classList.contains("on") ? requestAnimationFrame(loop) : 0;
         };
-        // Show a saved picture, the domain name, or the thin loading line.
-        const showPreview = (domain, src, mine) => {
-          if (mine !== token) return;
-          if (src) {
-            line.hidden = true;
-            name.hidden = true;
-            img.src = src;
-            img.classList.add("ok");
-            return;
-          }
-          img.classList.remove("ok");
-          img.removeAttribute("src");
-          line.hidden = true;
-          name.textContent = domain || "";
-          name.hidden = false;
-        };
         const idx = $("#idx");
         idx.addEventListener("pointerover", (e) => {
-          const row = e.target.closest(".row");
-          if (!row) return;
-          // Moving across the same row should not clear a picture that is already showing.
-          if (row.dataset.domain && row.dataset.domain === current) {
-            peek.classList.add("on");
-            if (!raf) raf = requestAnimationFrame(loop);
-            return;
-          }
-          current = row.dataset.domain || "";
-          const mine = ++token;
-          const known = cachedShot(row.dataset.domain);
-          if (known !== undefined) {
-            showPreview(row.dataset.domain, known, mine);
-          } else {
-            img.classList.remove("ok");
-            img.removeAttribute("src");
-            name.hidden = true;
-            line.hidden = false;
-            getShot(row.dataset.domain, row.dataset.url).then((src) => {
-              showPreview(row.dataset.domain, src, mine);
-            });
-          }
+          const r = e.target.closest(".row");
+          if (!r) return;
+          img.onerror = () => img.removeAttribute("src");
+          img.src = shotUrl(r.dataset.url);
           peek.classList.add("on");
           if (!raf) raf = requestAnimationFrame(loop);
         });
-        idx.addEventListener("pointerleave", () => {
-          token += 1;
-          current = "";
-          line.hidden = true;
-          name.hidden = true;
-          peek.classList.remove("on");
-        });
+        idx.addEventListener("pointerleave", () => peek.classList.remove("on"));
         idx.addEventListener("pointermove", (e) => {
           tx = Math.min(e.clientX + 24, innerWidth - 344);
           ty = Math.min(e.clientY - 120, innerHeight - 264);
