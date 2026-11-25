@@ -917,6 +917,7 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center top;
         border-radius: 17px;
       }
       .thumb:hover {
@@ -1649,7 +1650,7 @@
       .card .shot {
         position: relative;
         flex: 1;
-        min-height: 190px;
+        min-height: 220px;
         border-radius: 14px;
         overflow: hidden;
         background: #141414;
@@ -1661,7 +1662,13 @@
         height: 100%;
         object-fit: cover;
         object-position: top;
-        transition: transform 1s var(--ease);
+        opacity: 0;
+        transition:
+          opacity 0.6s,
+          transform 1s var(--ease);
+      }
+      .card .shot img.ok {
+        opacity: 1;
       }
       .card:hover .shot img {
         transform: scale(1.05);
@@ -1820,6 +1827,11 @@
         object-fit: cover;
         object-position: top;
         border-radius: 13px;
+        opacity: 0;
+        transition: opacity 0.6s;
+      }
+      .peek img.ok {
+        opacity: 1;
       }
       @media (hover: none) {
         .peek {
@@ -2992,6 +3004,21 @@
       .fbar .tag2 {
         color: var(--ink);
       }
+      .fbar .flink {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .fbar .flink svg {
+        width: 16px;
+        height: 16px;
+        flex: none;
+      }
+      .fbar .flink:hover {
+        color: var(--ink);
+      }
 
       /* ============ Floating "Convinced?" pill ============ */
       .float {
@@ -3113,6 +3140,302 @@
           transition: none;
         }
         .a {
+          animation: none;
+        }
+      }
+
+      /* ===== 3D ANIMATION STYLES ===== */
+      /* Everything in this block is extra motion for sections under the hero.
+         The hero (brush, ball, flask, blue glow) is not styled here.
+         Turn motion off in the OS and none of these rules apply. */
+      @media (prefers-reduced-motion: no-preference) {
+        /* Scroll reveal already fades sections in. This only adds a small
+           3D tilt that settles flat. --d3-reveal and --d3-distance are set
+           from the constants at the top of animations3d.js. */
+        .reveal {
+          transform: perspective(900px) rotateX(var(--d3-reveal, 10deg))
+            translateY(var(--d3-distance, 28px));
+          transform-origin: 50% 100%;
+        }
+        .reveal.in {
+          transform: perspective(900px) rotateX(0deg) translateY(0);
+        }
+
+        /* Soft light that follows the cursor. --mx and --my are set in JS.
+           --d3-glare is how see-through that light is. */
+        .card::after,
+        .step::after,
+        .faq li::after,
+        .thumb::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
+          opacity: 0;
+          z-index: 3;
+          /* 129, 175, 241 is --sky (#81aff1) at partial strength */
+          background: radial-gradient(
+            380px circle at var(--mx, 50%) var(--my, 40%),
+            rgba(129, 175, 241, 0.55),
+            transparent 58%
+          );
+          transition: opacity 0.35s var(--ease);
+        }
+        .card,
+        .step,
+        .faq li,
+        .thumb {
+          position: relative;
+        }
+
+        footer {
+          perspective: 900px;
+        }
+      }
+
+      /* Glare and smoother tilt only for a real mouse, not a fingertip. */
+      @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+        .card::after,
+        .step::after,
+        .faq li::after,
+        .thumb::after {
+          opacity: 0;
+        }
+        .card:hover::after,
+        .step:hover::after,
+        .faq li:hover::after,
+        .thumb:hover::after {
+          opacity: var(--d3-glare, 0.45);
+        }
+        .card,
+        .step,
+        .thumb {
+          transition:
+            transform 0.28s var(--ease),
+            border-color 0.3s,
+            box-shadow 0.4s var(--ease);
+        }
+        .faq li {
+          transition:
+            transform 0.28s var(--ease),
+            box-shadow 0.4s var(--ease);
+        }
+        /* The reveal rule is stronger than the old hover lift, so the lift
+           is repeated here for a mouse that has not moved yet. */
+        .card.reveal.in:hover {
+          transform: perspective(900px) translateY(-5px);
+        }
+        .step.reveal.in:hover {
+          transform: perspective(900px) translateY(-4px);
+        }
+      }
+
+      /* Contact ball. Colors come from the existing blue variables.
+         --d3-float is how many pixels it bobs. JS only adds the element
+         when motion is allowed. */
+      @media (prefers-reduced-motion: no-preference) {
+        .cta > .wrap {
+          position: relative;
+          z-index: 1;
+        }
+        .d3-orb,
+        .d3-glow {
+          position: absolute;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .d3-orb {
+          right: -4%;
+          top: 8%;
+          width: clamp(120px, 26vw, 300px);
+          aspect-ratio: 1;
+          border-radius: 50%;
+          background:
+            radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.9), transparent 16%),
+            radial-gradient(
+              circle at 34% 32%,
+              var(--sky) 0%,
+              var(--electric) 18%,
+              var(--blue) 46%,
+              var(--indigo) 100%
+            );
+          box-shadow:
+            inset -16px -18px 32px rgba(0, 0, 0, 0.28),
+            0 28px 50px -24px var(--blue);
+          opacity: 0.9;
+          animation: d3-float 7s ease-in-out infinite;
+        }
+        .d3-glow {
+          right: -6%;
+          top: 16%;
+          width: clamp(160px, 34vw, 420px);
+          height: clamp(140px, 28vw, 320px);
+          border-radius: 50%;
+          background: radial-gradient(ellipse, var(--blue), transparent 68%);
+          opacity: 0.28;
+          filter: blur(8px);
+        }
+        @keyframes d3-float {
+          50% {
+            transform: translateY(calc(var(--d3-float, 16px) * -1));
+          }
+        }
+      }
+
+      /* ===== PRELOADER STYLES ===== */
+      /* Dark cover. Colors are the existing graphite, white, and blues.
+         html.is-loading locks scrolling until the cover is removed. */
+      html.is-loading,
+      html.is-loading body {
+        overflow: hidden;
+      }
+      .loader {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: var(--graphite);
+        color: var(--on-dark);
+        pointer-events: auto;
+      }
+      .loader-orb {
+        position: absolute;
+        left: 50%;
+        top: 46%;
+        transform: translate(-50%, -50%);
+      }
+      .loader-orb-float {
+        position: relative;
+        width: clamp(76px, 11vw, 120px);
+        aspect-ratio: 1;
+        animation: loader-float 3.2s ease-in-out infinite;
+      }
+      .loader.is-still .loader-orb-float {
+        animation: none;
+      }
+      .loader-glow,
+      .loader-ball {
+        position: absolute;
+        border-radius: 50%;
+      }
+      .loader-glow {
+        inset: -38%;
+        background: radial-gradient(circle, var(--electric), transparent 68%);
+        opacity: 0.45;
+        filter: blur(8px);
+      }
+      .loader-ball {
+        inset: 0;
+        background:
+          radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.92), transparent 18%),
+          radial-gradient(
+            circle at 34% 32%,
+            var(--sky) 0%,
+            var(--electric) 22%,
+            var(--blue) 52%,
+            var(--indigo) 100%
+          );
+        box-shadow:
+          inset -10px -14px 24px rgba(0, 0, 0, 0.28),
+          0 20px 40px -18px var(--blue);
+      }
+      @keyframes loader-float {
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      .loader-count {
+        position: absolute;
+        right: var(--gutter);
+        bottom: 36px;
+        display: flex;
+        align-items: flex-start;
+        margin: 0;
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+        font-size: clamp(48px, 10vw, 120px);
+        font-weight: 500;
+        line-height: 1;
+        color: var(--white);
+      }
+      .loader-count span {
+        margin: 0.18em 0 0 0.08em;
+        font-size: 0.32em;
+        color: var(--on-dark-muted);
+      }
+      .loader-status {
+        position: absolute;
+        left: var(--gutter);
+        bottom: 22px;
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--on-dark-muted);
+      }
+      .loader-bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .loader-bar span {
+        display: block;
+        height: 100%;
+        width: 100%;
+        background: var(--electric);
+        transform: scaleX(0);
+        transform-origin: left center;
+      }
+      .peek-line,
+      .peek-name {
+        position: absolute;
+      }
+      .peek {
+        overflow: hidden;
+      }
+      .peek-line {
+        left: 12px;
+        right: 12px;
+        bottom: 10px;
+        height: 2px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.14);
+      }
+      .peek-line i {
+        display: block;
+        width: 35%;
+        height: 100%;
+        background: var(--electric);
+        animation: peek-scan 1s linear infinite;
+      }
+      .peek-name {
+        inset: 6px;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        color: var(--white);
+        font-size: 15px;
+        text-align: center;
+      }
+      .peek-line[hidden],
+      .peek-name[hidden] {
+        display: none;
+      }
+      @keyframes peek-scan {
+        from {
+          transform: translateX(-120%);
+        }
+        to {
+          transform: translateX(320%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .loader-orb-float,
+        .peek-line i {
           animation: none;
         }
       }

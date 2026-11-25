@@ -101,6 +101,7 @@ export function Services() {
                                 alt={`Homepage of ${domain}`}
                                 width="1000"
                                 height="1300"
+                                loading="lazy"
                               />
                             </span>
                           </span>
